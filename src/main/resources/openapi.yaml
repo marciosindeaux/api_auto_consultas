@@ -1,0 +1,489 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Api Autoconsultas
+  description: Api para marcação de consultas com medicos online
+  contact:
+    name: Marcio A. F. Sindeaux
+    email: sindeaux@mailinator.com
+servers:
+  - url: http://localhost:5000/sample
+    description: Local Server
+components:
+  schemas:
+    ResponsePacientes:
+      type: object
+      properties:
+        listaPacientes:
+          type: array
+          description: lista de pacientes
+          items:
+            $ref: '#/components/schemas/ResponsePaciente'
+    ResponseConsulta:
+      type: object
+      properties:
+        data:
+          type: string
+          format: date
+          description: Data e hora da consulta
+        paciente:
+          $ref: '#/components/schemas/ResponsePaciente'
+        medico:
+          $ref: '#/components/schemas/ResponseMedico'
+    ResponsePessoa:
+      type: object
+      properties:
+        nome:
+          type: string
+          description: Nome
+        telefone:
+          type: string
+          description: Telefone
+        dataNascimento:
+          type: string
+          format: date
+          description: Data de nascimento
+      required:
+        - nome
+        - telefone
+        - dataNascimento
+    ResponseFuncionario:
+      allOf:
+        - $ref: '#/components/schemas/ResponsePessoa'
+        - type: object
+          properties:
+            matricula:
+              type: number
+              description: Numero de matricula do funcionario
+          required:
+            - matricula
+    ResponseMedico:
+      allOf:
+        - $ref: '#/components/schemas/ResponseFuncionario'
+        - type: object
+          properties:
+            crm:
+              type: string
+              description: CRM do médico
+            especializacao:
+              type: string
+              description: Especializaçãod do médico
+          required:
+            - crm
+            - especializacao
+    ResponsePaciente:
+      allOf:
+        - $ref: '#/components/schemas/ResponsePessoa'
+        - type: object
+          properties:
+            convenio:
+              type: string
+              description: Nome do convenio do cliente
+            numeroCartao:
+              type: string
+              description: numero do cartao do convenio do paciente
+          required:
+            - convenio
+            - numeroCartao
+    RequestPessoa:
+      type: object
+      properties:
+        telefone:
+          type: string
+          description: Telefone para contato com paciente
+        dataNascimento:
+          type: string
+          format: date
+          description: Data de nascimento do Paciente
+        cpf:
+          type: string
+          description: CPF do paciente
+        nome:
+          type: string
+          description: Nome do Paciente
+      required:
+        - telefone
+        - cpf
+        - nome
+        - dataNascimento
+    GenericError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    RequestCadastroPaciente:
+      allOf:
+        - $ref: '#/components/schemas/RequestPessoa'
+        - type: object
+          properties:
+            numeroCartao:
+              type: string
+              description: Numero do convenio da pessoa.
+          required:
+            - numeroCartao
+    RequestCadastroMedico:
+      allOf:
+        - $ref: '#/components/schemas/RequestPessoa'
+        - type: object
+          properties:
+            crm:
+              type: string
+              description: Numero do CRM do medico
+            especializacao:
+              type: string
+              description: Especialização do medico
+          required:
+            - crm
+    RequestCadastroConsulta:
+      type: object
+      properties:
+        idPaciente:
+          type: number
+          format: int64
+          description: Id do paciente na api
+        idMedico:
+          type: number
+          format: int64
+          description: Id do medico na API
+        dataHoraConsulta:
+          type: string
+          format: date-time
+          description: Data e hora agendado para a consulta
+      required:
+        - idPaciente
+        - idMedico
+        - dataHoraConsulta
+  responses:
+    GenericError:
+      description: Objeto de erro
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError'
+    ResponsePaciente:
+      description: Objeto Resposta para a busca de paciente
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsePaciente'
+    ResponsePacientes:
+      description: Objeto Resposta para a busca de todos os pacientes
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsePacientes'
+
+
+paths:
+  /pacientes:
+    post:
+      operationId: cadastrarPaciente
+      summary: Cadastro de paciente
+      description: Cadastra um paciente dentro da API de consultas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCadastroPaciente'
+      responses:
+        default:
+          description: Paciente cadastradocom sucesso
+        '500':
+          description: Ocorreu um erro ao realizar o cadastro de paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    get:
+      summary: Busca de todos os pacientes
+      description: Busca de todos os pacientes cadastrados na api
+      operationId: buscarPacientes
+      responses:
+        default:
+          description: Busca realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePacientes'
+        '500':
+          description: Ocorreu um erro ao realizar o cadastro de paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /pacientes/{id}:
+    put:
+      operationId: alterarPaciente
+      summary: Alterar Dados Paciente
+      description: Alterar os dados de um paciente na base de dados
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCadastroPaciente'
+      responses:
+        default:
+          description: Alteração realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePaciente'
+        '404':
+          description: Paciente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        '500':
+          description: Ocorreu um erro ao alterar dados cadastrais do paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    delete:
+      operationId: deletarPaciente
+      summary: Deletar Paciente
+      description: Deletar um paciente da base de dados por id
+      responses:
+        default:
+          description: Exclusao realizada com sucesso
+        '404':
+          description: Paciente não encontrado na base de dados
+        '500':
+          description: Ocorreu um erro ao deletar paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    get:
+      operationId: bucarPaciente
+      summary: Buscar Paciente
+      description: Buscar Dados do paciente por id
+      responses:
+        default:
+          description: Busca realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePaciente'
+        '404':
+          description: Paciente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        '500':
+          description: Ocorreu um erro ao realizar o busca de paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    parameters:
+      - name: id
+        in: path
+        description: id do paciente
+        required: true
+        schema:
+          type: integer
+  /medicos:
+    post:
+      operationId: cadastrarMedico
+      summary: Cadastro de medicos
+      description: Cadastra um medico dentro da API de consultas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCadastroMedico'
+      responses:
+        '201':
+          description: Medico cadastrado com sucesso
+        '500':
+          description: Ocorreu um erro ao realizar o cadastro de medico na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        default:
+          description: Ação realizada com sucesso
+    get:
+      summary: Busca de todos os medicos
+      description: Busca de todos os medicos cadastrados na api
+      operationId: buscarMedicos
+      responses:
+        default:
+          description: Busca realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMedico'
+        '500':
+          description: Ocorreu um erro ao buscar os Médicos na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /medicos/{id}:
+    put:
+      operationId: alterarMedico
+      summary: Alterar Dados Medico
+      description: Alterar os dados de um medico na base de dados
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCadastroMedico'
+      responses:
+        default:
+          description: Alteração realizda com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMedico'
+        '404':
+          description: Medico
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        '500':
+          description: Ocorreu um erro ao realizar a alteração dos dados do medico na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    delete:
+      operationId: deletarMedico
+      summary: Deletar Medico
+      description: Deletar um medico da base de dados por id
+      responses:
+        default:
+          description: Exclusao realizada com sucesso
+        '404':
+          description: Medico não encontrado na base de dados
+        '500':
+          description: Ocorreu um erro ao realizar a remoção do medico na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    get:
+      operationId: buscarMedico
+      summary: Buscar Medico
+      description: Buscar Dados do medico por id
+      responses:
+        default:
+          description: Busca realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMedico'
+        '404':
+          description: Paciente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        '500':
+          description: Ocorreu um erro ao realizar o cadastro de paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    parameters:
+      - name: id
+        in: path
+        description: id do medico
+        required: true
+        schema:
+          type: integer
+  /consulta:
+    post:
+      operationId: cadastrarConsultas
+      summary: Cadastro de consutas
+      description: Cadastra uma consulta entre um paciente e um Funcionario médico
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCadastroConsulta'
+      responses:
+        default:
+          description: Consulta cadastrada com sucesso
+        '500':
+          description: Ocorreu um erro ao realizar o cadastro da consulta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /consulta/{id}:
+    patch:
+      operationId: marcarConsultaConcluida
+      summary: Marcar Consulta como concluida
+      description: Marcar que a consulta foi realizada e colcoar as possiveis anotações
+      responses:
+        default:
+          description: Alteração realizada com sucesso
+        '404':
+          description: Não foi possível encontrar consulta na base de dados
+        '500':
+          description: Ocorreu um erro ao realizar o cadastro de medico na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    delete:
+      operationId: deletarConsulta
+      summary: Deletar Consulta
+      description: Deletar uma consulta da base de dados por id
+      responses:
+        default:
+          description: Exclusao realizada com sucesso
+        '404':
+          description: Consulta não encontrada na base de dados
+        '500':
+          description: Ocorreu um erro ao deletar paciente na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    get:
+      operationId: buscarConsultaPorId
+      summary: Buscar Consulta
+      description: Buscar Dados da consulta por Id
+      responses:
+        default:
+          description: Busca realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseConsulta'
+        '404':
+          description: Consulta não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        '500':
+          description: Ocorreu um erro ao realizar o busca de consulta na base de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    parameters:
+      - name: id
+        in: path
+        description: id do paciente
+        required: true
+        schema:
+          type: integer
+
+
+
+
+
+
+
