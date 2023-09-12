@@ -1,7 +1,5 @@
-package org.sindeaux.autoconsulta.transportlayer.impl;
+package org.sindeaux.autoconsulta.transportlayers.impl;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
 import org.sindeaux.autoconsulta.controller.openapi.api.PacientesApi;
 import org.sindeaux.autoconsulta.controller.openapi.model.RequestCadastroPaciente;
 import org.sindeaux.autoconsulta.controller.openapi.model.ResponsePaciente;

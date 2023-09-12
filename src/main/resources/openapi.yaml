@@ -19,6 +19,14 @@ components:
           description: lista de pacientes
           items:
             $ref: '#/components/schemas/ResponsePaciente'
+    ResponseMedicos:
+      type: object
+      properties:
+        listaMedicos:
+          type: array
+          description: lista de medicos
+          items:
+            $ref: '#/components/schemas/ResponseMedico'
     ResponseConsulta:
       type: object
       properties:
@@ -319,7 +327,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseMedico'
+                $ref: '#/components/schemas/ResponseMedicos'
         '500':
           description: Ocorreu um erro ao buscar os Médicos na base de dados
           content:
