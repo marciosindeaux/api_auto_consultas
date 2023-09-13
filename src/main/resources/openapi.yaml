@@ -149,11 +149,11 @@ components:
       type: object
       properties:
         idPaciente:
-          type: number
+          type: integer
           format: int64
           description: Id do paciente na api
         idMedico:
-          type: number
+          type: integer
           format: int64
           description: Id do medico na API
         dataHoraConsulta:
