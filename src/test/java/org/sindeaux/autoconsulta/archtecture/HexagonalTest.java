@@ -11,5 +11,5 @@ public class HexagonalTest {
     @ArchTest
     public static final ArchRule layersValidator = Architectures.layeredArchitecture()
             .layer("Config").definedBy("..configs..")
-            .layer("Datasource").definedBy("..datasources..")
+            .layer("Datasource").definedBy("..datasources..");
 }
