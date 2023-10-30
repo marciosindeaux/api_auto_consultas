@@ -19,7 +19,7 @@ public class ConsultaApiImpl implements ConsultaApi {
 
     @Override
     public ResponseEntity<ResponseConsulta> buscarConsultaPorId(Integer id) {
-        return ResponseEntity.ok(new ResponseConsulta());
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -30,6 +30,7 @@ public class ConsultaApiImpl implements ConsultaApi {
 
     @Override
     public ResponseEntity<Void> deletarConsulta(Integer id){
+        consultaUseCase.removerConsultaCadastrada(id.longValue());
         return ResponseEntity.ok().build();
     }
 
